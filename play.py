@@ -17,6 +17,19 @@ def read_format_chunk(song, fp):
     song.patterns.append(struct.unpack('B', fp.read(1))[0])
   song.format = fp.read(4)
 
+def read_pattern(fp):
+  p = Pattern()
+
+  for d in range(0, 64):
+    for channel in range(0, 4):
+      division = PatternDivision()
+      division.sample_index = struct.unpack('B', fp.read(1))[0]
+      # now load 24 bits/3 bytes and split them into 12 bits each
+      fp.read(3) # fuck it TODO
+      p.divisions.append(division)
+
+  return p
+
 class Song:
   def __init__(self):
     self.name = ''
@@ -36,6 +49,16 @@ class Sample:
     self.volume = 0
     self.repeat_offset = 0
     self.repeat_length = 0
+
+class Pattern:
+  def __init__(self):
+    self.divisions = [] # 64 divisions * 4 channels.
+
+class PatternDivision:
+  def __init__(self):
+    self.sample_index = 0
+    self.sample_period = []
+    self.effect = []
 
 fp = open('freezerend.mod', 'rb')
 
@@ -70,7 +93,7 @@ try:
 
   # read pattern data
   for i in range(0, pattern_count):
-    s.pattern_data.append(fp.read(1024)) # TODO: parse
+    s.pattern_data.append(read_pattern(fp))
 
   # read sample data
   for sample_ref in s.samples:
