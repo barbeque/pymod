@@ -25,7 +25,18 @@ def read_pattern(fp):
       division = PatternDivision()
       division.sample_index = struct.unpack('B', fp.read(1))[0]
       # now load 24 bits/3 bytes and split them into 12 bits each
-      fp.read(3) # fuck it TODO
+      b1 = struct.unpack('B', fp.read(1))[0]
+      b2 = struct.unpack('B', fp.read(1))[0]
+      b3 = struct.unpack('B', fp.read(1))[0]
+
+      # goes like this:
+      # SSSSSSSS, PPPPPPPP, PPPPEEEE, EEEEEEEE
+      left = int((b1 << 4) & (b2 & 0xffff0000)) # big endian!
+      right = int((b2 & 0x0000ffff) & b3)
+
+      division.sample_period = left
+      division.effect = right
+
       p.divisions.append(division)
 
   return p
@@ -57,8 +68,8 @@ class Pattern:
 class PatternDivision:
   def __init__(self):
     self.sample_index = 0
-    self.sample_period = []
-    self.effect = []
+    self.sample_period = 0
+    self.effect = 0
 
 fp = open('freezerend.mod', 'rb')
 
@@ -104,7 +115,7 @@ try:
       s.sample_data.append(bytes)
     else:
       s.sample_data.append([]) # don't break indices!!
-      print 'zero length sample:', sample_ref.name
+      #print 'zero length sample:', sample_ref.name
 
 finally:
   fp.close()
