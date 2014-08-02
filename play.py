@@ -29,10 +29,13 @@ def read_pattern(fp):
       b2 = struct.unpack('B', fp.read(1))[0]
       b3 = struct.unpack('B', fp.read(1))[0]
 
+      print d, channel, bin(b1), bin(b2), bin(b3)
       # goes like this:
       # SSSSSSSS, PPPPPPPP, PPPPEEEE, EEEEEEEE
-      left = int((b1 << 4) & (b2 & 0xffff0000)) # big endian!
-      right = int((b2 & 0x0000ffff) & b3)
+      left = (b1 << 4) | (b2 >> 4) # big endian!
+      right = ((b2 << 8) & 0xf00) | b3 # shift left eight spots, knock off top 4
+
+      print d, channel, bin(left), bin(right)
 
       division.sample_period = left
       division.effect = right
