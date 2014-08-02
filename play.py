@@ -74,8 +74,11 @@ try:
 
   # read sample data
   for sample_ref in s.samples:
-    if sample_ref.length > 1: # indicating empty sample
-      s.sample_data.append(fp.read(2 * sample_ref.length)) # in words...
+    if sample_ref.length > 1: # indicating non-empty sample
+      bytes = []
+      for i in range(0, 2 * sample_ref.length): # length is in words, so double it for bytes
+        bytes.append(struct.unpack('b', fp.read(1))[0])
+      s.sample_data.append(bytes)
     else:
       s.sample_data.append([]) # don't break indices!!
       print 'zero length sample:', sample_ref.name
