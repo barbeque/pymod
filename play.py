@@ -1,4 +1,5 @@
 import struct
+import wave
 
 def read_sample(fp):
   s = Sample()
@@ -120,3 +121,15 @@ finally:
   fp.close()
 
 # play back
+w = wave.open('output.wav', 'w')
+
+try:
+  w.setsampwidth(1)
+  w.setnchannels(1)
+  w.setframerate(8287) # 8287 bytes/s at the pitch of C2.. what is this
+
+  # just write out a sample to see if it's even sane
+  print 'sample length in bytes:', len(s.sample_data[0])
+  w.writeframes(struct.pack('%sb' % len(s.sample_data[0]), *s.sample_data[0])) # i dunno
+finally:
+  w.close()
