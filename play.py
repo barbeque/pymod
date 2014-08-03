@@ -84,8 +84,9 @@ try:
 
   read_format_chunk(s, fp)
   if s.format != 'M.K.':
-    # shit we need to rewind by 134 bytes + 16 samples
-    # then try again
+    # we were wrong.
+    # we need to rewind by 134 bytes + 16 samples
+    # because this is not a 31-sample song
     s.samples = s.samples[:15]
     seek_distance = 134 + (16 * 30)
     fp.seek(-seek_distance, 1)
