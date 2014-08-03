@@ -1,3 +1,4 @@
+import sys
 import struct
 import wave
 
@@ -74,7 +75,11 @@ class PatternDivision:
     self.sample_period = 0
     self.effect = 0
 
-fp = open('freezerend.mod', 'rb')
+if len(sys.argv) < 2:
+  print 'usage:', sys.argv[0], '[modfile]'
+  sys.exit()
+
+fp = open(sys.argv[1], 'rb')
 
 try:
   s = Song()
@@ -130,7 +135,7 @@ w = wave.open('output.wav', 'w')
 try:
   w.setsampwidth(1)
   w.setnchannels(1)
-  w.setframerate(8287) # 8287 bytes/s at the pitch of C2.. what is this
+  w.setframerate(4000) # 8287 bytes/s at the pitch of C2.. what is this
 
   for pattern in s.patterns:
     data = s.pattern_data[pattern]
