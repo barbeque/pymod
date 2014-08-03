@@ -128,8 +128,10 @@ try:
   w.setnchannels(1)
   w.setframerate(8287) # 8287 bytes/s at the pitch of C2.. what is this
 
-  # just write out a sample to see if it's even sane
-  print 'sample length in bytes:', len(s.sample_data[0])
-  w.writeframes(struct.pack('%sb' % len(s.sample_data[0]), *s.sample_data[0])) # i dunno
+  for sample in s.sample_data:
+    # write each sample, one after the other...
+    if len(sample) > 0:
+      w.writeframes(struct.pack('%sb' % len(sample), *sample)) # i dunno
+
 finally:
   w.close()
