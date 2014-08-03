@@ -18,6 +18,10 @@ def read_format_chunk(song, fp):
     song.patterns.append(struct.unpack('B', fp.read(1))[0])
   song.format = fp.read(4)
 
+def blat_sample(output, sample):
+  if len(sample) > 0:
+    output.writeframes(struct.pack('%sb' % len(sample), *sample)) # i dunno
+
 def read_pattern(fp):
   p = Pattern()
 
@@ -128,10 +132,15 @@ try:
   w.setnchannels(1)
   w.setframerate(8287) # 8287 bytes/s at the pitch of C2.. what is this
 
-  for sample in s.sample_data:
-    # write each sample, one after the other...
-    if len(sample) > 0:
-      w.writeframes(struct.pack('%sb' % len(sample), *sample)) # i dunno
+  for pattern in s.patterns:
+    data = s.pattern_data[pattern]
+    i = 2
+    while i < len(data.divisions):
+      instruction = data.divisions[i]
+      # TODO: how to handle period? effect?
+      # TODO: what about sample metadata?
+      blat_sample(w, s.sample_data[instruction.sample_index])
+      i += 4 # just play one channel for now
 
 finally:
   w.close()
